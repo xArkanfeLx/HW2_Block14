@@ -1,5 +1,6 @@
 package com.example.fragments
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -13,7 +14,7 @@ import com.example.sqlite.DBHelper
 import java.util.Date
 
 class NotesFragment : Fragment() {
-
+    private lateinit var onFragmentsDataListener: OnFragmentsDataListener
     private var notes:MutableList<MyNote> = mutableListOf()
     private lateinit var recyclerRV:RecyclerView
     private var db:DBHelper? = null
@@ -35,6 +36,8 @@ class NotesFragment : Fragment() {
         recyclerRV = view.findViewById(R.id.recyclerRV)
         reInitAdapter()
 
+        onFragmentsDataListener = requireActivity() as OnFragmentsDataListener
+
         addBTN.setOnClickListener{
             val note = noteET.text
             if(note.isNotEmpty()) {
@@ -48,8 +51,20 @@ class NotesFragment : Fragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        reInitAdapter()
+    }
+
     private fun reInitAdapter(){
         recyclerRV.layoutManager = LinearLayoutManager(this.context)
-        recyclerRV.adapter = this.context?.let { CustomAdapter(it,notes) }
+        val adapter = this.context?.let { CustomAdapter(it,notes) }
+        recyclerRV.adapter = adapter
+        adapter!!.setOnItemClickListener(object:
+            CustomAdapter.OnItemClickListener {
+            override fun onItemClick(note: MyNote, position: Int) {
+                onFragmentsDataListener.onData(note)
+            }
+        })
     }
 }

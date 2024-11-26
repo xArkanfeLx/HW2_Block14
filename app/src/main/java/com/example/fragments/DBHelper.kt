@@ -65,7 +65,7 @@ class DBHelper(context: Context, factory: SQLiteDatabase.CursorFactory?) :
         return products
     }
 
-    fun updateProduct(note: MyNote) {
+    fun updateNote(note: MyNote) {
         val db = this.writableDatabase
         val values = ContentValues()
         values.put(KEY_ID,note.id)

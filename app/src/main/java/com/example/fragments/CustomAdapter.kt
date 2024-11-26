@@ -12,6 +12,12 @@ import com.example.sqlite.DBHelper
 
 class CustomAdapter(private val context: Context, private val notes: MutableList<MyNote>) :
     RecyclerView.Adapter<CustomAdapter.ItemViewHolder>() {
+    private var onItemClickListener: OnItemClickListener? = null
+
+    interface OnItemClickListener {
+        fun onItemClick(note: MyNote, position: Int)
+    }
+
     class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val idTV: TextView = itemView.findViewById(R.id.idTV)
         val noteTV: TextView = itemView.findViewById(R.id.noteTV)
@@ -28,15 +34,24 @@ class CustomAdapter(private val context: Context, private val notes: MutableList
     override fun getItemCount() = notes.size
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
-        val db = DBHelper(context,null)
+        val db = DBHelper(context, null)
         val note = notes[position]
         holder.idTV.text = note.id.toString()
         holder.noteTV.text = note.note
         holder.dateTV.text = note.date
         holder.checkbox.isChecked = note.isDo
 
-        holder.checkbox.setOnClickListener{
-            db.updateProduct(MyNote(note.id,note.note,note.date,holder.checkbox.isChecked))
+        holder.checkbox.setOnClickListener {
+            db.updateNote(MyNote(note.id, note.note, note.date, holder.checkbox.isChecked))
         }
+        holder.itemView.setOnClickListener {
+            if (onItemClickListener != null) {
+                onItemClickListener!!.onItemClick(note, position)
+            }
+        }
+    }
+
+    fun setOnItemClickListener(onItemClickListener: OnItemClickListener) {
+        this.onItemClickListener = onItemClickListener
     }
 }
